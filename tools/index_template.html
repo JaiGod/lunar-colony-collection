@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lunar Colony Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0b1020;--card:#141b30;--line:#24304f;--text:#e8f2ff;--muted:#93a4c3;--cyan:#22e3ff}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 50% -200px,#1b2a55 0%,var(--bg) 60%);background-color:var(--bg);color:var(--text);font-family:Poppins,system-ui,sans-serif}
+  header{max-width:1100px;margin:0 auto;padding:48px 16px 16px;text-align:center}
+  .badge{display:inline-flex;gap:8px;align-items:center;font-size:12px;letter-spacing:.18em;color:var(--cyan);border:1px solid var(--line);padding:6px 12px;border-radius:999px}
+  h1{font-size:clamp(28px,5vw,46px);margin:14px 0 8px}
+  header p{color:var(--muted);max-width:640px;margin:0 auto}
+  .filters{display:flex;gap:8px;justify-content:center;margin:22px 0 0;flex-wrap:wrap}
+  .filters button{font:inherit;font-size:14px;background:var(--card);color:var(--text);border:1px solid var(--line);padding:8px 16px;border-radius:999px;cursor:pointer}
+  .filters button.on{background:var(--cyan);color:#06121a;border-color:var(--cyan);font-weight:600}
+  main{max-width:1100px;margin:0 auto;padding:24px 16px 64px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+  .stage{background:linear-gradient(180deg,#0f1630,#0a0f22);aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+  .stage img{max-width:92%;max-height:92%;image-rendering:auto}
+  .stage .hint{position:absolute;bottom:8px;right:10px;font-size:11px;color:var(--muted)}
+  .body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .body h2{font-size:18px;margin:0;display:flex;align-items:center;gap:8px}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .body p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+  .lore{font-style:italic;color:#c9d7f0 !important}
+  .actions{margin-top:auto;display:flex;gap:8px;padding-top:8px}
+  .actions a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:600;padding:9px 10px;border-radius:10px;border:1px solid var(--line);color:var(--text)}
+  .actions a.primary{background:var(--cyan);color:#06121a;border-color:var(--cyan)}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 40px}
+  footer a{color:var(--cyan)}
+</style>
+</head>
+<body>
+<header>
+  <span class="badge">JAKING ◆ ROBLOX CLASSIC CLOTHING</span>
+  <h1>Lunar Colony Collection</h1>
+  <p>Ten original STEM, space and engineering shirts, plus matching pants. Click a preview to switch between the avatar mockup and the raw 585×559 template.</p>
+  <div class="filters">
+    <button class="on" data-k="all">All</button>
+    <button data-k="shirt">Shirts</button>
+    <button data-k="pants">Pants</button>
+  </div>
+</header>
+<main id="grid"></main>
+<footer>
+  Upload guide in the <a href="README.md">README</a> · <a href="https://create.roblox.com/">Roblox Creator Hub</a> · <a href="https://github.com/JaiGod">JaiGod on GitHub</a>
+</footer>
+<script>
+const ITEMS = __ITEMS__;
+const grid = document.getElementById('grid');
+function render(kind){
+  grid.innerHTML='';
+  ITEMS.filter(i=>kind==='all'||i.kind===kind).forEach(i=>{
+    const folder = i.kind==='shirt'?'shirts':'pants';
+    const tpl = `${folder}/${i.file}.png`;
+    const prev = i.kind==='shirt' ? `previews/${i.file}_preview.png`
+      : (i.file==='circuit_pants'?'previews/developer_elite_set_preview.png':'previews/lunar_commander_mk4_set_preview.png');
+    const el=document.createElement('article'); el.className='card';
+    el.innerHTML=`<div class="stage"><img alt="${i.name}" src="${prev}"><span class="hint">click: template ⇄ preview</span></div>
+      <div class="body"><h2><span class="dot" style="background:${i.accent}"></span>${i.name}</h2>
+      <p>${i.theme}</p>${i.lore?`<p class="lore">“${i.lore}”</p>`:''}
+      <div class="actions"><a class="primary" href="${tpl}" download>Download template</a><a href="${tpl}" target="_blank" rel="noopener">View PNG</a></div></div>`;
+    const img=el.querySelector('img'); let showTpl=false;
+    el.querySelector('.stage').addEventListener('click',()=>{showTpl=!showTpl; img.src=showTpl?tpl:prev;});
+    grid.appendChild(el);
+  });
+}
+document.querySelectorAll('.filters button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.filters button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); render(b.dataset.k);
+}));
+render('all');
+</script>
+</body>
+</html>
