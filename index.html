@@ -86,7 +86,7 @@ function ugcCard(i){
   stage.addEventListener('click',()=>{
     if(on3d) return;
     on3d=true;
-    stage.innerHTML=`<model-viewer src="${glb}" alt="${i.name} 3D model" camera-controls auto-rotate shadow-intensity="0.6" exposure="1.1" interaction-prompt="none"></model-viewer>`;
+    stage.innerHTML=`<model-viewer src="${glb}" alt="${i.name} 3D model" loading="eager" reveal="auto" camera-controls auto-rotate shadow-intensity="0.6" exposure="1.1" interaction-prompt="none"></model-viewer>`;
   });
   return el;
 }
@@ -103,7 +103,7 @@ document.querySelectorAll('.filters button').forEach(b=>b.addEventListener('clic
   stage.addEventListener('click',()=>{
     if(on3d) return;
     on3d=true;
-    stage.innerHTML=`<model-viewer src="${glb}" alt="${i.name} 3D model" camera-controls auto-rotate shadow-intensity="0.6" exposure="1.1" interaction-prompt="none"></model-viewer>`;
+    stage.innerHTML=`<model-viewer src="${glb}" alt="${i.name} 3D model" loading="eager" reveal="auto" camera-controls auto-rotate shadow-intensity="0.6" exposure="1.1" interaction-prompt="none"></model-viewer>`;
   });
   return el;
 }
