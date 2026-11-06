@@ -6,7 +6,7 @@ Builds 6 original rigid accessories procedurally, each as ONE mesh with ONE
 and GLB (for the web gallery) and renders previews on a blocky avatar.
 
 Run inside Blender (Scripting tab -> Run Script), or via the Blender MCP.
-At the bottom, call  run("build")  /  run("render", item)  /  run("lineup").
+Call  run("build")  then  run("render", item)  for each item and  run("lineup").
 
 Units: 1 Blender unit = 1 Roblox stud. When importing to Roblox Studio
 (File > Import 3D) set File Dimensions > Scale Unit to "Stud".
@@ -76,28 +76,35 @@ def make_images():
     return pal, emit
 
 
+def _nodes_on(idb):
+    try:
+        idb.use_nodes = True
+    except Exception:
+        pass
+
+
 def make_materials(pal, emit):
     m = bpy.data.materials.get("LC_mat") or bpy.data.materials.new("LC_mat")
-    m.use_nodes = True
+    _nodes_on(m)
     nt = m.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
     bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
     tex = nt.nodes.new("ShaderNodeTexImage"); tex.image = pal; tex.interpolation = "Closest"
     etex = nt.nodes.new("ShaderNodeTexImage"); etex.image = emit; etex.interpolation = "Closest"
-    mul = nt.nodes.new("ShaderNodeMath"); mul.operation = "MULTIPLY"; mul.inputs[1].default_value = 6.0
+    mul = nt.nodes.new("ShaderNodeMath"); mul.operation = "MULTIPLY"; mul.inputs[1].default_value = 2.2
     nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
     ecol = "Emission Color" if "Emission Color" in bsdf.inputs else "Emission"
     nt.links.new(tex.outputs["Color"], bsdf.inputs[ecol])
     nt.links.new(etex.outputs["Color"], mul.inputs[0])
     if "Emission Strength" in bsdf.inputs:
         nt.links.new(mul.outputs[0], bsdf.inputs["Emission Strength"])
-    bsdf.inputs["Metallic"].default_value = 0.35
-    bsdf.inputs["Roughness"].default_value = 0.32
+    bsdf.inputs["Metallic"].default_value = 0.2
+    bsdf.inputs["Roughness"].default_value = 0.4
     nt.links.new(bsdf.outputs[0], out.inputs[0])
 
     g = bpy.data.materials.get("LC_mannequin") or bpy.data.materials.new("LC_mannequin")
-    g.use_nodes = True
+    _nodes_on(g)
     b = g.node_tree.nodes.get("Principled BSDF")
     b.inputs["Base Color"].default_value = (0.55, 0.58, 0.63, 1)
     b.inputs["Roughness"].default_value = 0.6
@@ -121,11 +128,13 @@ class Builder:
         self.sm = self.bm.faces.layers.int.new("sm")
 
     def _tag(self, n0, sw, smooth):
-        self.bm.faces.ensure_lookup_table()
-        for i in range(n0, len(self.bm.faces)):
-            f = self.bm.faces[i]
-            f[self.sw] = sw
-            f[self.sm] = 1 if smooth else 0
+        # bmesh reuses freed face slots (e.g. pointed cones), so index ranges are
+        # unreliable; use the per-face tag flag to find faces that are new.
+        for f in self.bm.faces:
+            if not f.tag:
+                f[self.sw] = sw
+                f[self.sm] = 1 if smooth else 0
+                f.tag = True
 
     def box(self, m, sw):
         n0 = len(self.bm.faces); bmesh.ops.create_cube(self.bm, size=1.0, matrix=m); self._tag(n0, sw, False)
@@ -270,6 +279,8 @@ def build_visor():
         b.cone(0.075, 0.075, 0.12, M((x + s * 0.01, -0.06, 0.06), rot=(0, R(90), 0)), 9, seg=12)
     b.cone(0.012, 0.012, 0.45, M((0.7, -0.06, 0.38)), 17, seg=6)                           # antenna
     b.ico(0.04, M((0.7, -0.06, 0.62)), 9)
+    # widen so it clears the corners of the blocky avatar head
+    bmesh.ops.transform(b.bm, matrix=Matrix.Diagonal((1.13, 1.13, 1.0, 1.0)), verts=b.bm.verts[:])
     return b
 
 
@@ -329,20 +340,20 @@ def build_void_pet():
 def build_wings():
     """Singularity Wings (Back). Origin = back attachment (centre of torso back)."""
     b = Builder()
-    b.box(M((0, 0.06, 0), scale=(0.5, 0.12, 0.7)), 17)                                     # mount plate
-    b.cone(0.24, 0.24, 0.16, M((0, 0.16, 0.08), rot=(R(-90), 0, 0)), 17, seg=20)           # core housing
-    b.ico(0.15, M((0, 0.26, 0.08)), 7, sub=2, smooth=True)                                # glowing core
-    b.torus(0.21, 0.03, M((0, 0.25, 0.08), rot=(R(90), 0, 0)), 3, seg=24, rseg=6)
-    feathers = [(42, 2.3, 0.3), (22, 2.75, 0.28), (2, 2.45, 0.26), (-20, 1.95, 0.22), (-42, 1.4, 0.18)]
+    b.box(M((0, 0.06, 0), scale=(0.55, 0.12, 0.75)), 17)                                   # mount plate
+    b.cone(0.26, 0.26, 0.18, M((0, 0.17, 0.08), rot=(R(-90), 0, 0)), 17, seg=20)           # core housing
+    b.ico(0.16, M((0, 0.28, 0.08)), 7, sub=2, smooth=True)                                # glowing core
+    b.torus(0.23, 0.035, M((0, 0.27, 0.08), rot=(R(90), 0, 0)), 3, seg=24, rseg=6)
+    feathers = [(42, 2.3, 0.42), (22, 2.75, 0.4), (2, 2.45, 0.36), (-20, 1.95, 0.3), (-42, 1.4, 0.25)]
     for s in (-1, 1):
-        root = Vector((s * 0.22, 0.22, 0.12))
+        root = Vector((s * 0.24, 0.22, 0.12))
         for k, (ang, L, w) in enumerate(feathers):
             d = Vector((s * math.cos(R(ang)), 0.18, math.sin(R(ang))))
-            b.shard(root, d, L, w, w * 0.32, 8 if k % 2 == 0 else 14, crack=7)
+            b.shard(root, d, L, w, w * 0.45, 14 if k % 2 == 0 else 17, crack=7)
             if k < 2:  # secondary branch shard
                 mid = root + d.normalized() * (L * 0.45)
                 d2 = Vector((s * math.cos(R(ang + 28)), 0.12, math.sin(R(ang + 28))))
-                b.shard(mid, d2, L * 0.38, w * 0.6, w * 0.2, 12, crack=3)
+                b.shard(mid, d2, L * 0.4, w * 0.6, w * 0.3, 4, crack=3)
     return b
 
 
@@ -375,9 +386,9 @@ ITEMS = [
     ("lunar_commander_helmet", "Lunar Habitat Commander Helmet", build_helmet, (0, 0, 2.6), "Hat",
      ((0, 0, 2.7), (2.4, -4.4, 1.0), 55)),
     ("void_core_shoulder_pet", "Void Core Shoulder Pet", build_void_pet, (-1.2, 0, 2.0), "Shoulder",
-     ((-0.7, 0, 2.4), (2.0, -4.6, 1.2), 50)),
+     ((-1.2, 0, 2.45), (-1.7, -3.3, 0.7), 50)),
     ("singularity_wings", "Singularity Wings", build_wings, (0, 0.5, 1.4), "Back",
-     ((0, 0, 1.8), (4.2, 7.6, 2.4), 35)),
+     ((0, 0.4, 1.7), (3.2, 6.4, 1.6), 40)),
     ("ai_relic_halo", "Ancient AI Relic Halo", build_halo, (0, 0, 2.6), "Hat",
      ((0, 0, 3.1), (2.2, -4.6, 1.8), 55)),
 ]
@@ -433,7 +444,8 @@ def setup_render(res=(1200, 1200)):
     sc.render.film_transparent = False
     sc.render.image_settings.file_format = "PNG"
     try:
-        sc.view_settings.view_transform = "Standard"
+        sc.view_settings.view_transform = "AgX"
+        sc.view_settings.look = "AgX - Medium High Contrast"
     except TypeError:
         pass
     ee = sc.eevee
@@ -442,14 +454,18 @@ def setup_render(res=(1200, 1200)):
             setattr(ee, attr, val)
     world = sc.world or bpy.data.worlds.new("World")
     sc.world = world
-    world.use_nodes = True
+    _nodes_on(world)
     bg = world.node_tree.nodes.get("Background")
     bg.inputs[0].default_value = (0.006, 0.009, 0.022, 1)
-    bg.inputs[1].default_value = 1.0
+    bg.inputs[1].default_value = 0.6
     # glare for glow (works on Eevee Next where bloom was removed)
     try:
-        sc.use_nodes = True
-        nt = sc.node_tree
+        if hasattr(sc, "compositing_node_group"):
+            nt = bpy.data.node_groups.get("LC_Comp") or bpy.data.node_groups.new("LC_Comp", "CompositorNodeTree")
+            sc.compositing_node_group = nt
+        else:
+            sc.use_nodes = True
+            nt = sc.node_tree
         nt.nodes.clear()
         rl = nt.nodes.new("CompositorNodeRLayers")
         gl = nt.nodes.new("CompositorNodeGlare")
@@ -458,9 +474,16 @@ def setup_render(res=(1200, 1200)):
             gl.threshold = 0.9
         if hasattr(gl, "size"):
             gl.size = 7
-        comp = nt.nodes.new("CompositorNodeComposite")
-        nt.links.new(rl.outputs["Image"], gl.inputs["Image"])
-        nt.links.new(gl.outputs["Image"], comp.inputs["Image"])
+        if hasattr(sc, "compositing_node_group"):
+            comp = nt.nodes.new("NodeGroupOutput")
+            if not nt.interface.items_tree:
+                nt.interface.new_socket("Image", in_out="OUTPUT", socket_type="NodeSocketColor")
+            nt.links.new(rl.outputs["Image"], gl.inputs["Image"])
+            nt.links.new(gl.outputs["Image"], comp.inputs[0])
+        else:
+            comp = nt.nodes.new("CompositorNodeComposite")
+            nt.links.new(rl.outputs["Image"], gl.inputs["Image"])
+            nt.links.new(gl.outputs["Image"], comp.inputs["Image"])
     except Exception:
         pass
     # lights
@@ -474,9 +497,11 @@ def setup_render(res=(1200, 1200)):
         if rot:
             ob.rotation_euler = rot
         return ob
-    light("Key", "AREA", (4, -5, 6), 900, (1, 0.97, 0.94), 4, (R(45), 0, R(38)))
-    light("Rim", "AREA", (-4, 5, 5), 1200, (0.45, 0.75, 1.0), 4, (R(-45), 0, R(-140)))
-    light("Fill", "AREA", (-5, -3, 2), 300, (0.8, 0.7, 1.0), 5, (R(70), 0, R(-60)))
+    light("Key", "AREA", (4, -5, 6), 260, (1, 0.97, 0.94), 4, (R(45), 0, R(38)))
+    light("Rim", "AREA", (-4, 5, 5), 320, (0.45, 0.75, 1.0), 4, (R(-45), 0, R(-140)))
+    light("Fill", "AREA", (-5, -3, 2), 90, (0.8, 0.7, 1.0), 5, (R(70), 0, R(-60)))
+    back = light("Back", "AREA", (3, 7, 5), 260, (0.9, 0.9, 1.0), 4)
+    back.rotation_euler = (Vector((0, 0, 1.5)) - back.location).to_track_quat("-Z", "Y").to_euler()
 
 
 def camera(target, offset, lens):
@@ -496,9 +521,12 @@ def camera(target, offset, lens):
 def export(ob, key):
     loc = ob.location.copy()
     ob.location = (0, 0, 0)
-    for o in bpy.context.view_layer.objects:
-        o.select_set(False)
-    ob.hide_set(False)
+    for o in bpy.data.objects:
+        try:
+            o.select_set(False)
+        except Exception:
+            pass
+    ob.data.name = key
     ob.select_set(True)
     bpy.context.view_layer.objects.active = ob
     fbx = os.path.join(OUT, key + ".fbx")
@@ -548,20 +576,27 @@ def run(mode="build", item=None):
         c = collection("LC_UGC")
         for ob in collection("LC_Avatar").objects:
             ob.hide_render = True
-        saved = {ob.name: ob.location.copy() for ob in c.objects}
-        xs = {"cosmic_dominion_crown": -6.3, "quantum_hacker_visor": -3.9, "lunar_commander_helmet": -1.5,
-              "void_core_shoulder_pet": 0.7, "ai_relic_halo": 2.8, "singularity_wings": 6.3}
-        zs = {"cosmic_dominion_crown": -0.5, "ai_relic_halo": -0.9, "void_core_shoulder_pet": -0.35, "singularity_wings": 0.2}
+        saved = {ob.name: (ob.location.copy(), ob.scale.copy()) for ob in c.objects}
+        layout = {"singularity_wings": (0, 1.5, 3.3, 0.85, 180), "cosmic_dominion_crown": (-5.0, 0, 0.9, 1, -15),
+                  "quantum_hacker_visor": (-2.6, 0, 1.4, 1, -15), "lunar_commander_helmet": (0, -0.6, 1.3, 1, -15),
+                  "void_core_shoulder_pet": (2.5, 0, 1.0, 1.2, -15), "ai_relic_halo": (4.9, 0, 0.5, 1, -15)}
         for ob in c.objects:
+            x, y, z, sc_, rz = layout[ob.name]
             ob.hide_render = False
-            ob.location = (xs[ob.name], 0, 2.0 + zs.get(ob.name, 0))
-            ob.rotation_euler = (0, 0, R(180)) if ob.name == "singularity_wings" else (0, 0, R(-18))
-        camera((0, 0, 2.1), (0, -16, 1.6), 50)
+            ob.location = (x, y, z); ob.scale = (sc_, sc_, sc_); ob.rotation_euler = (0, 0, R(rz))
+        camera((0, 0, 1.9), (0, -15, 2.2), 40)
         path = os.path.join(OUT, "ugc_lineup_render.png")
         bpy.context.scene.render.filepath = path
         bpy.ops.render.render(write_still=True)
         for ob in c.objects:
-            ob.location = saved[ob.name]
+            ob.location, ob.scale = saved[ob.name]
             ob.rotation_euler = (0, 0, 0)
         out["render"] = path
     return out
+
+
+if __name__ == "__main__":
+    run("build")
+    for _key, *_ in ITEMS:
+        run("render", _key)
+    run("lineup")
