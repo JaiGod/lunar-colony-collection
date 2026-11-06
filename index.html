@@ -6,6 +6,7 @@
 <title>Lunar Colony Collection</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 <style>
   :root{--bg:#0b1020;--card:#141b30;--line:#24304f;--text:#e8f2ff;--muted:#93a4c3;--cyan:#22e3ff}
   *{box-sizing:border-box}
@@ -30,6 +31,8 @@
   .actions{margin-top:auto;display:flex;gap:8px;padding-top:8px}
   .actions a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:600;padding:9px 10px;border-radius:10px;border:1px solid var(--line);color:var(--text)}
   .actions a.primary{background:var(--cyan);color:#06121a;border-color:var(--cyan)}
+  model-viewer{width:100%;height:100%;background:transparent}
+  .tag{display:inline-block;font-size:11px;letter-spacing:.06em;color:var(--cyan);border:1px solid var(--line);border-radius:999px;padding:2px 8px;margin-right:6px}
   footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 40px}
   footer a{color:var(--cyan)}
 </style>
@@ -38,11 +41,12 @@
 <header>
   <span class="badge">JAKING ◆ ROBLOX CLASSIC CLOTHING</span>
   <h1>Lunar Colony Collection</h1>
-  <p>Ten original STEM, space and engineering shirts, plus matching pants. Click a preview to switch between the avatar mockup and the raw 585×559 template.</p>
+  <p>Ten original STEM, space and engineering shirts, matching pants, and six 3D UGC accessories. Click a shirt preview to see its raw 585×559 template, or click an accessory to spin it in 3D.</p>
   <div class="filters">
     <button class="on" data-k="all">All</button>
     <button data-k="shirt">Shirts</button>
     <button data-k="pants">Pants</button>
+    <button data-k="ugc">3D Accessories</button>
   </div>
 </header>
 <main id="grid"></main>
@@ -50,11 +54,12 @@
   Upload guide in the <a href="https://github.com/JaiGod/lunar-colony-collection#readme">README</a> · <a href="https://create.roblox.com/">Roblox Creator Hub</a> · <a href="https://github.com/JaiGod">JaiGod on GitHub</a>
 </footer>
 <script>
-const ITEMS = [{"name": "Lunar Commander Mk-IV", "file": "lunar_commander_mk4_shirt", "theme": "Flagship armored suit top for the colony's commanding officer.", "lore": "Lead humanity's first permanent lunar settlement. Built for explorers, engineers, and visionaries.", "kind": "shirt", "accent": "#1fd6ff"}, {"name": "Lunar Habitat Engineer", "file": "lunar_habitat_engineer_shirt", "theme": "Hi-vis work shirt for the crews who build and maintain the colony's pressurized domes.", "lore": "Every dome on the Moon was raised by someone in this shirt.", "kind": "shirt", "accent": "#1d2433"}, {"name": "Quantum Hacker Hoodie", "file": "quantum_hacker_hoodie_shirt", "theme": "Developer Elite hoodie \u2014 terminal window, binary rain and neon trim for programmers.", "lore": "Compiles at the speed of light. Debugs across parallel universes.", "kind": "shirt", "accent": "#39ff88"}, {"name": "Circuit Architect", "file": "circuit_architect_shirt", "theme": "Green PCB with gold traces and a central processor \u2014 for electronics and hardware builders.", "lore": "Designs the nervous system of every machine on the colony.", "kind": "shirt", "accent": "#3ddc84"}, {"name": "Orbital Mechanics", "file": "orbital_mechanics_shirt", "theme": "Deep navy star chart with orbital ellipses, a glowing planet and the law of gravitation.", "lore": "Every launch window is a math problem. Solve it.", "kind": "shirt", "accent": "#ffb547"}, {"name": "Mars Rover Pilot", "file": "mars_rover_pilot_shirt", "theme": "Rust-red Martian dunes with a six-wheeled science rover \u2014 for planetary explorers.", "lore": "Sol 1024. Still driving. Still discovering.", "kind": "shirt", "accent": "#f5d6a8"}, {"name": "Robotics Crew", "file": "robotics_crew_shirt", "theme": "Bold yellow-and-charcoal team shirt with a glowing robot face and hazard stripes.", "lore": "Build. Code. Compete. Repeat until it walks.", "kind": "shirt", "accent": "#ffcc1a"}, {"name": "Deep Space Observatory", "file": "deep_space_telescope_shirt", "theme": "Gold segmented hexagonal mirror on a black starfield, with a spiral galaxy on the back.", "lore": "Looks back 13 billion years so we can see what comes next.", "kind": "shirt", "accent": "#f2b632"}, {"name": "Singularity Core", "file": "singularity_core_shirt", "theme": "Black hole with a glowing accretion disk and crystalline wings \u2014 matches the Void Core pet & Singularity Wings concepts.", "lore": "Nothing escapes the event horizon. Not even style.", "kind": "shirt", "accent": "#a64dff"}, {"name": "Cosmic Dominion", "file": "cosmic_dominion_shirt", "theme": "Indigo nebula with an original star-crown sigil and orbiting asteroids \u2014 matches the Cosmic Dominion Crown concept.", "lore": "A relic forged from the remnants of collapsed stars. The universe bends around its wearer.", "kind": "shirt", "accent": "#3d7bff"}, {"name": "Lunar Commander Mk-IV Pants", "file": "lunar_commander_mk4_pants", "theme": "Matching armored legs: white plating, metallic knee joints with cyan glow, silver boots.", "lore": "", "kind": "pants", "accent": "#1fd6ff"}, {"name": "Developer Elite Circuit Pants", "file": "circuit_pants", "theme": "Matching Developer Elite pants: black with neon-green circuit traces and glowing cuffs.", "lore": "", "kind": "pants", "accent": "#39ff88"}];
+const ITEMS = [{"name": "Lunar Commander Mk-IV", "file": "lunar_commander_mk4_shirt", "theme": "Flagship armored suit top for the colony's commanding officer.", "lore": "Lead humanity's first permanent lunar settlement. Built for explorers, engineers, and visionaries.", "kind": "shirt", "accent": "#1fd6ff"}, {"name": "Lunar Habitat Engineer", "file": "lunar_habitat_engineer_shirt", "theme": "Hi-vis work shirt for the crews who build and maintain the colony's pressurized domes.", "lore": "Every dome on the Moon was raised by someone in this shirt.", "kind": "shirt", "accent": "#1d2433"}, {"name": "Quantum Hacker Hoodie", "file": "quantum_hacker_hoodie_shirt", "theme": "Developer Elite hoodie \u2014 terminal window, binary rain and neon trim for programmers.", "lore": "Compiles at the speed of light. Debugs across parallel universes.", "kind": "shirt", "accent": "#39ff88"}, {"name": "Circuit Architect", "file": "circuit_architect_shirt", "theme": "Green PCB with gold traces and a central processor \u2014 for electronics and hardware builders.", "lore": "Designs the nervous system of every machine on the colony.", "kind": "shirt", "accent": "#3ddc84"}, {"name": "Orbital Mechanics", "file": "orbital_mechanics_shirt", "theme": "Deep navy star chart with orbital ellipses, a glowing planet and the law of gravitation.", "lore": "Every launch window is a math problem. Solve it.", "kind": "shirt", "accent": "#ffb547"}, {"name": "Mars Rover Pilot", "file": "mars_rover_pilot_shirt", "theme": "Rust-red Martian dunes with a six-wheeled science rover \u2014 for planetary explorers.", "lore": "Sol 1024. Still driving. Still discovering.", "kind": "shirt", "accent": "#f5d6a8"}, {"name": "Robotics Crew", "file": "robotics_crew_shirt", "theme": "Bold yellow-and-charcoal team shirt with a glowing robot face and hazard stripes.", "lore": "Build. Code. Compete. Repeat until it walks.", "kind": "shirt", "accent": "#ffcc1a"}, {"name": "Deep Space Observatory", "file": "deep_space_telescope_shirt", "theme": "Gold segmented hexagonal mirror on a black starfield, with a spiral galaxy on the back.", "lore": "Looks back 13 billion years so we can see what comes next.", "kind": "shirt", "accent": "#f2b632"}, {"name": "Singularity Core", "file": "singularity_core_shirt", "theme": "Black hole with a glowing accretion disk and crystalline wings \u2014 matches the Void Core pet & Singularity Wings concepts.", "lore": "Nothing escapes the event horizon. Not even style.", "kind": "shirt", "accent": "#a64dff"}, {"name": "Cosmic Dominion", "file": "cosmic_dominion_shirt", "theme": "Indigo nebula with an original star-crown sigil and orbiting asteroids \u2014 matches the Cosmic Dominion Crown concept.", "lore": "A relic forged from the remnants of collapsed stars. The universe bends around its wearer.", "kind": "shirt", "accent": "#3d7bff"}, {"name": "Lunar Commander Mk-IV Pants", "file": "lunar_commander_mk4_pants", "theme": "Matching armored legs: white plating, metallic knee joints with cyan glow, silver boots.", "lore": "", "kind": "pants", "accent": "#1fd6ff"}, {"name": "Developer Elite Circuit Pants", "file": "circuit_pants", "theme": "Matching Developer Elite pants: black with neon-green circuit traces and glowing cuffs.", "lore": "", "kind": "pants", "accent": "#39ff88"}, {"file": "cosmic_dominion_crown", "name": "Cosmic Dominion Crown", "type": "Hat", "tris": 3096, "accent": "#3d7bff", "theme": "Floating crown of dark crystal spires with glowing star tips, a spiral galaxy inside, a halo ring and orbiting asteroids.", "lore": "A relic forged from the remnants of collapsed stars. The universe bends around its wearer.", "kind": "ugc"}, {"file": "quantum_hacker_visor", "name": "Quantum Hacker Visor", "type": "Face Front", "tris": 1768, "accent": "#39ff88", "theme": "Wrap-around neon visor with lines of glowing code, earpieces and an antenna. Pairs with the Quantum Hacker Hoodie.", "lore": "Compiles at the speed of light. Debugs across parallel universes.", "kind": "ugc"}, {"file": "lunar_commander_helmet", "name": "Lunar Habitat Commander Helmet", "type": "Hat", "tris": 3124, "accent": "#22e3ff", "theme": "White space helmet with a navy visor and cyan HUD, comm ear modules, crest fin and a glowing collar. Matches the Mk-IV set.", "lore": "Lead humanity's first permanent lunar settlement.", "kind": "ugc"}, {"file": "void_core_shoulder_pet", "name": "Void Core Shoulder Pet", "type": "Shoulder", "tris": 2232, "accent": "#a64dff", "theme": "Tiny black-hole creature with glowing eyes, little horns, an accretion-disk ring and orbiting particles.", "lore": "It ate a star once. Now it just wants snacks.", "kind": "ugc"}, {"file": "singularity_wings", "name": "Singularity Wings", "type": "Back", "tris": 708, "accent": "#3d7bff", "theme": "Crystalline violet-and-gunmetal wings with glowing energy cracks and a blue singularity core. Matches the Singularity Core shirt.", "lore": "Nothing escapes the event horizon. Not even style.", "kind": "ugc"}, {"file": "ai_relic_halo", "name": "Ancient AI Relic Halo", "type": "Hat", "tris": 1324, "accent": "#1fae9a", "theme": "Floating gold-and-teal segmented halo with glowing circuit nodes and a hovering data crystal.", "lore": "Built by a machine older than the Moon colony. Still running.", "kind": "ugc"}];
 const grid = document.getElementById('grid');
 function render(kind){
   grid.innerHTML='';
   ITEMS.filter(i=>kind==='all'||i.kind===kind).forEach(i=>{
+    if(i.kind==='ugc'){ grid.appendChild(ugcCard(i)); return; }
     const folder = i.kind==='shirt'?'shirts':'pants';
     const tpl = `${folder}/${i.file}.png`;
     const prev = i.kind==='shirt' ? `previews/${i.file}_preview.png`
@@ -69,8 +74,40 @@ function render(kind){
     grid.appendChild(el);
   });
 }
+function ugcCard(i){
+  const img=`ugc/renders/${i.file}_render.jpg`, glb=`ugc/models/${i.file}.glb`, fbx=`ugc/models/${i.file}.fbx`;
+  const el=document.createElement('article'); el.className='card';
+  el.innerHTML=`<div class="stage"><img alt="${i.name}" src="${img}"><span class="hint">click: spin in 3D</span></div>
+    <div class="body"><h2><span class="dot" style="background:${i.accent}"></span>${i.name}</h2>
+    <p><span class="tag">${i.type}</span><span class="tag">${i.tris.toLocaleString()} tris</span></p>
+    <p>${i.theme}</p><p class="lore">“${i.lore}”</p>
+    <div class="actions"><a class="primary" href="${fbx}" download>Download FBX</a><a href="${glb}" download>GLB</a></div></div>`;
+  const stage=el.querySelector('.stage'); let on3d=false;
+  stage.addEventListener('click',()=>{
+    if(on3d) return;
+    on3d=true;
+    stage.innerHTML=`<model-viewer src="${glb}" alt="${i.name} 3D model" camera-controls auto-rotate shadow-intensity="0.6" exposure="1.1" interaction-prompt="none"></model-viewer>`;
+  });
+  return el;
+}
 document.querySelectorAll('.filters button').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('.filters button').forEach(x=>x.classList.remove('on'));
+  function ugcCard(i){
+  const img=`ugc/renders/${i.file}_render.jpg`, glb=`ugc/models/${i.file}.glb`, fbx=`ugc/models/${i.file}.fbx`;
+  const el=document.createElement('article'); el.className='card';
+  el.innerHTML=`<div class="stage"><img alt="${i.name}" src="${img}"><span class="hint">click: spin in 3D</span></div>
+    <div class="body"><h2><span class="dot" style="background:${i.accent}"></span>${i.name}</h2>
+    <p><span class="tag">${i.type}</span><span class="tag">${i.tris.toLocaleString()} tris</span></p>
+    <p>${i.theme}</p><p class="lore">“${i.lore}”</p>
+    <div class="actions"><a class="primary" href="${fbx}" download>Download FBX</a><a href="${glb}" download>GLB</a></div></div>`;
+  const stage=el.querySelector('.stage'); let on3d=false;
+  stage.addEventListener('click',()=>{
+    if(on3d) return;
+    on3d=true;
+    stage.innerHTML=`<model-viewer src="${glb}" alt="${i.name} 3D model" camera-controls auto-rotate shadow-intensity="0.6" exposure="1.1" interaction-prompt="none"></model-viewer>`;
+  });
+  return el;
+}
+document.querySelectorAll('.filters button').forEach(x=>x.classList.remove('on'));
   b.classList.add('on'); render(b.dataset.k);
 }));
 render('all');

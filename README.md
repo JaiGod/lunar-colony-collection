@@ -1,6 +1,6 @@
 # 🌙 JaKing Lunar Colony Collection: Roblox Classic Shirts
 
-**10 original Roblox classic shirt templates** (plus 2 matching pants) themed around space exploration, coding, robotics and engineering. They're built for STEM students, NASA fans, programmers, robotics teams and engineering clubs.
+**10 original Roblox classic shirt templates**, 2 matching pants and **6 original 3D UGC accessories** themed around space exploration, coding, robotics and engineering. They're built for STEM students, NASA fans, programmers, robotics teams and engineering clubs.
 
 🌐 **[Open the live gallery website](https://jaigod.github.io/lunar-colony-collection/)** · 📦 [Download all (ZIP)](https://github.com/JaiGod/lunar-colony-collection/archive/refs/heads/main.zip) · 🛠️ [Creator Hub](https://create.roblox.com/)
 
@@ -21,7 +21,7 @@ Every item shares the same **Lunar Colony branding**: a hex-and-crescent emblem 
 9. [Singularity Core](#9-singularity-core)
 10. [Cosmic Dominion](#10-cosmic-dominion)
 
-Also: [Matching sets](#-matching-sets) · [Upload guide](#-uploading-a-shirt-to-the-roblox-creator-hub) · [Links](#-links)
+Also: [Matching sets](#-matching-sets) · [3D UGC accessories](#-3d-ugc-accessories) · [Upload guide](#-uploading-a-shirt-to-the-roblox-creator-hub) · [Links](#-links)
 
 ---
 
@@ -32,6 +32,7 @@ Also: [Matching sets](#-matching-sets) · [Upload guide](#-uploading-a-shirt-to-
 /pants       2 matching pants templates, 585×559 PNG
 /previews    front/back avatar mockups, matching-set previews, collection sheet
 /tools       generate.py (renders every PNG) + build_docs.py (README & website)
+/ugc         3D UGC accessories: FBX/GLB models, renders, .blend source, Blender script
 index.html   browser gallery website (GitHub Pages)
 README.md
 ```
@@ -160,6 +161,42 @@ README.md
 
 ---
 
+## 🧊 3D UGC accessories
+
+Six original **rigid accessories** modelled in Blender to match the shirts. Each is a single mesh with one shared 256×256 palette texture, well under Roblox's 4,000-triangle limit. **[Spin them in 3D on the gallery](https://jaigod.github.io/lunar-colony-collection/)**.
+
+![3D accessory lineup](ugc/renders/ugc_lineup_render.jpg)
+
+| Accessory | Type | Tris | Preview | Files |
+|---|---|---|---|---|
+| **Cosmic Dominion Crown**<br><sub>Floating crown of dark crystal spires with glowing star tips, a spiral galaxy inside, a halo ring and orbiting asteroids.</sub> | Hat | 3,096 | <img src="ugc/renders/cosmic_dominion_crown_render.jpg" width="200"> | [FBX](ugc/models/cosmic_dominion_crown.fbx) · [GLB](ugc/models/cosmic_dominion_crown.glb) |
+| **Quantum Hacker Visor**<br><sub>Wrap-around neon visor with lines of glowing code, earpieces and an antenna. Pairs with the Quantum Hacker Hoodie.</sub> | Face Front | 1,768 | <img src="ugc/renders/quantum_hacker_visor_render.jpg" width="200"> | [FBX](ugc/models/quantum_hacker_visor.fbx) · [GLB](ugc/models/quantum_hacker_visor.glb) |
+| **Lunar Habitat Commander Helmet**<br><sub>White space helmet with a navy visor and cyan HUD, comm ear modules, crest fin and a glowing collar. Matches the Mk-IV set.</sub> | Hat | 3,124 | <img src="ugc/renders/lunar_commander_helmet_render.jpg" width="200"> | [FBX](ugc/models/lunar_commander_helmet.fbx) · [GLB](ugc/models/lunar_commander_helmet.glb) |
+| **Void Core Shoulder Pet**<br><sub>Tiny black-hole creature with glowing eyes, little horns, an accretion-disk ring and orbiting particles.</sub> | Shoulder | 2,232 | <img src="ugc/renders/void_core_shoulder_pet_render.jpg" width="200"> | [FBX](ugc/models/void_core_shoulder_pet.fbx) · [GLB](ugc/models/void_core_shoulder_pet.glb) |
+| **Singularity Wings**<br><sub>Crystalline violet-and-gunmetal wings with glowing energy cracks and a blue singularity core. Matches the Singularity Core shirt.</sub> | Back | 708 | <img src="ugc/renders/singularity_wings_render.jpg" width="200"> | [FBX](ugc/models/singularity_wings.fbx) · [GLB](ugc/models/singularity_wings.glb) |
+| **Ancient AI Relic Halo**<br><sub>Floating gold-and-teal segmented halo with glowing circuit nodes and a hovering data crystal.</sub> | Hat | 1,324 | <img src="ugc/renders/ai_relic_halo_render.jpg" width="200"> | [FBX](ugc/models/ai_relic_halo.fbx) · [GLB](ugc/models/ai_relic_halo.glb) |
+
+```
+/ugc/models    FBX (for Roblox Studio) + GLB (web/3D viewers) + lunar_colony_palette.png
+/ugc/renders   preview renders on a blocky avatar + lineup
+/ugc/source    lunar_colony_ugc.blend
+/ugc/tools     build_ugc_blender.py: rebuilds and re-exports everything in Blender
+```
+
+> Rigid accessories can't animate, so effects like a spinning halo or scrolling code are modelled as static glowing parts. Animation would need a game-side script, not the accessory itself.
+
+### Uploading a UGC accessory
+
+> Publishing UGC accessories needs a Roblox account that meets the current **UGC eligibility** rules (ID verification, Premium and upload/listing fees have all applied at different times). Check the requirements in the [Creator Hub](https://create.roblox.com/docs/marketplace/publishing-to-marketplace) first.
+
+1. In **Roblox Studio**, open the **Avatar** tab → **Import 3D** and pick the `.fbx` from `ugc/models`. Set **File Dimensions → Scale Unit** to **Stud**.
+2. If the colours are missing, set the mesh's texture to `lunar_colony_palette.png` (upload it as an image first).
+3. Open **Avatar → Accessory Fitting Tool**, select the mesh, and choose the type from the table above (Hat, Face Front, Shoulder or Back). Position it on the preview mannequin and click **Generate MeshPart Accessory**.
+4. Fix anything the built-in validation flags (size bounds, attachment, triangle count).
+5. Submit it for Marketplace review from Studio or the Creator Hub. Use the name and lore line from the table as the title and description.
+
+---
+
 ## 🚀 Uploading a shirt to the Roblox Creator Hub
 
 > Roblox's menus and upload fees change from time to time. If something looks different, follow the labels in the Creator Hub. Official reference: [Classic clothing docs](https://create.roblox.com/docs/art/classic-clothing).
@@ -186,9 +223,7 @@ README.md
 - Release the 10 shirts as one **themed drop** with consistent thumbnails (from `/previews`).
 - Put "Lunar Colony Collection" in every description so they appear together in search.
 - Bundle the shirts with their matching pants: **Mk-IV** and **Developer Elite**.
-- **Planned 3D UGC companions** (Blender meshes, made separately through the [UGC program](https://create.roblox.com/docs/marketplace/publishing-to-marketplace)):
-  Cosmic Dominion Crown · Quantum Hacker Visor · Lunar Commander Helmet · Void Core Shoulder Pet · Singularity Wings · Ancient AI Relic Halo.
-  The *Cosmic Dominion* and *Singularity Core* shirts already match these. All concepts are original and don't copy any existing limited item.
+- Pair each shirt with its **3D UGC accessory** (see [3D UGC accessories](#-3d-ugc-accessories)): Mk-IV shirt + pants + Commander Helmet, Quantum Hacker Hoodie + Circuit Pants + Hacker Visor, Cosmic Dominion shirt + Crown, Singularity Core shirt + Wings + Void Core Pet. All concepts are original and don't copy any existing limited item.
 
 ## 🛠️ Editing / regenerating
 
